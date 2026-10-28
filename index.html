@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>망통</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=VT323&family=Silkscreen&display=swap">
+<style>
+/* Layout: 회색 종이 위 로고 → 보라·연두 물결 판 안에 칸막이 박스와 레트로 창. 한 칼럼, 최대 560px */
+@font-face { font-family: "Galmuri11"; src: url("fonts/Galmuri11.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Galmuri11"; src: url("fonts/Galmuri11-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Galmuri14"; src: url("fonts/Galmuri14.woff2") format("woff2"); font-display: swap; }
+:root {
+  --paper: #e8e7e3;
+  --box: #ecebe7;
+  --win: #dcdcd9;
+  --winbar: #c9c9c5;
+  --ink: #222222;
+  --muted: #6f6d68;
+  --purple: #8f6fdc;
+  --purple-deep: #5a3fb0;
+  --lav: #b9a2f0;
+  --lav-soft: #e2d8f8;
+  --mint: #b5ee9c;
+  --green-ink: #2f4a26;
+  --danger: #b0392f;
+  --f-pixel: "Galmuri11", "Apple SD Gothic Neo", "Malgun Gothic", monospace;
+  --f-pixel-big: "Galmuri14", "Galmuri11", "Apple SD Gothic Neo", monospace;
+  --f-chrome: "Syncopate", "Arial Black", sans-serif;
+  --f-lcd: "VT323", "Courier New", monospace;
+  --f-label: "Silkscreen", "Galmuri11", monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); overflow-x: hidden; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--f-pixel); font-size: 13px; line-height: 1.7;
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 40px;
+  word-break: keep-all; overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .45; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .3 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+.wrap { max-width: 560px; margin: 0 auto; position: relative; }
+a { color: inherit; }
+button, input, textarea { font: inherit; color: inherit; }
+img { max-width: 100%; }
+
+/* ---------- 머리 ---------- */
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 4px 0 12px; }
+.logo { display: block; width: min(52vw, 230px); flex-shrink: 0; }
+.logo img { display: block; width: 100%; filter: drop-shadow(0 2px 0 rgba(34,34,34,.12)); }
+.top-info { font-family: var(--f-label); font-size: 10px; line-height: 1.7; text-align: right; padding-top: 14px; letter-spacing: .02em; min-width: 0; }
+.top-info b { font-weight: 400; }
+
+/* ---------- 레트로 창 ---------- */
+.win { position: relative; background: var(--win); border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(34,34,34,.18); }
+.wbar { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 3px 4px 3px 8px; border-bottom: 1.5px solid var(--ink); background: var(--winbar); min-height: 21px; }
+.wbar span { font-family: var(--f-label); font-size: 10px; letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wbar i { display: flex; gap: 3px; font-style: normal; margin-left: auto; }
+.wbar i b { width: 12px; height: 11px; border: 1.2px solid var(--ink); background: #ecebe8; }
+.win-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.win-title { font-family: var(--f-lcd); font-size: 26px; line-height: 1; letter-spacing: .02em; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; text-decoration: none;
+  background: #f2f1ee; border: 1.5px solid var(--ink); padding: 5px 13px; font-family: var(--f-pixel); font-size: 12px; line-height: 1.3;
+  box-shadow: inset -2px -2px 0 #bdbcb8; color: var(--ink); }
+.btn:active { box-shadow: inset 2px 2px 0 #bdbcb8; }
+.btn.on, .btn.g { background: var(--mint); box-shadow: inset -2px -2px 0 #8fc879; }
+.btn.p { background: var(--lav); box-shadow: inset -2px -2px 0 #9479d8; }
+.btn.danger { color: var(--danger); border-color: var(--danger); }
+.btn.sm { padding: 3px 9px; font-size: 11px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:focus-visible, .inp:focus-visible, a:focus-visible, label.file:focus-within { outline: 2px solid var(--purple-deep); outline-offset: 2px; }
+.nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.nav .btn[data-tab] { font-family: var(--f-label); font-size: 12px; letter-spacing: .06em; min-width: 52px; }
+.btn.sound { font-family: var(--f-label); font-size: 10px; letter-spacing: .04em; gap: 6px; }
+.btn.sound[aria-pressed="true"] { background: var(--lav); box-shadow: inset -2px -2px 0 #9479d8; }
+.eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.eq i { width: 3px; height: 3px; background: var(--ink); }
+.btn.sound[aria-pressed="true"] .eq i { animation: eq .9s steps(4) infinite; }
+.btn.sound[aria-pressed="true"] .eq i:nth-child(2) { animation-delay: -.3s; }
+.btn.sound[aria-pressed="true"] .eq i:nth-child(3) { animation-delay: -.6s; }
+@keyframes eq { 0% { height: 3px; } 25% { height: 11px; } 50% { height: 6px; } 75% { height: 9px; } 100% { height: 3px; } }
+@media (prefers-reduced-motion: reduce) { .btn.sound[aria-pressed="true"] .eq i { animation: none; height: 8px; } }
+
+/* ---------- 물결 판 ---------- */
+.stage { position: relative; margin-top: 14px; border: 1.5px solid transparent;
+  background: #ecebe6 url("assets/bg.jpg") center top / 100% auto repeat-y; padding: 20px 18px 26px; display: flex; flex-direction: column; gap: 16px; }
+.view { display: flex; flex-direction: column; gap: 16px; position: relative; }
+.sticker { position: absolute; z-index: 6; pointer-events: none; filter: drop-shadow(3px 5px 4px rgba(60,40,100,.28)); }
+.heart { display: block; width: 150px; height: auto; overflow: visible; margin: -6px auto -10px; }
+
+/* ---------- 박스 ---------- */
+.box { position: relative; background: var(--box); border: 1.5px solid var(--ink); }
+.box.pad { padding: 12px 14px; }
+.box.mint { background: var(--mint); }
+.lcd { font-family: var(--f-lcd); line-height: 1; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+.label { font-family: var(--f-label); font-size: 10px; letter-spacing: .04em; }
+.muted { color: var(--muted); }
+.body { margin: 0; white-space: pre-wrap; min-width: 0; }
+
+/* 크롬 영문 제목 · 픽셀 한글 제목 */
+.chrome { font-family: var(--f-chrome); font-weight: 700; text-transform: uppercase; line-height: 1; letter-spacing: -.02em; margin: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #d9ffcb 30%, #8fdc78 52%, #f2fff0 56%, #b5ee9c 80%, #ffffff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 1.3px var(--green-ink);
+  filter: drop-shadow(2px 2px 0 var(--green-ink)); }
+.view > .chrome { font-size: clamp(32px, 10vw, 44px); }
+.chrome i { font-style: normal; display: block;
+  background: linear-gradient(180deg, #ffffff 0%, #e6dcff 30%, #9b78ec 52%, #f4f0ff 56%, #b9a2f0 80%, #ffffff 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 1.3px #3a2a6e; }
+.ktitle { font-family: var(--f-pixel-big); font-weight: 400; color: #c9f5b4; -webkit-text-stroke: 5px var(--green-ink); paint-order: stroke fill;
+  text-shadow: 3px 3px 0 var(--green-ink); line-height: 1.25; margin: 0; text-wrap: balance; }
+
+/* ---------- 사진 칸 ---------- */
+.pgrid { display: grid; gap: 10px; }
+.pgrid .ph { position: relative; border: 1.5px solid var(--ink); background: var(--lav-soft); overflow: hidden; min-height: 0; }
+.pgrid .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pgrid.n1 .ph { aspect-ratio: 4 / 3; }
+.pgrid.n2 { grid-template-columns: 1fr 1fr; }
+.pgrid.n2 .ph { aspect-ratio: 3 / 4; }
+.pgrid.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; aspect-ratio: 1 / 1; }
+.pgrid.n3 .ph:nth-child(1) { grid-row: 1; grid-column: 1; }
+.pgrid.n3 .ph:nth-child(2) { grid-row: 2; grid-column: 1; }
+.pgrid.n3 .ph:nth-child(3) { grid-row: 1 / 3; grid-column: 2; }
+.more-ph { position: absolute; right: 6px; bottom: 6px; background: var(--ink); color: #fff; font-family: var(--f-lcd); font-size: 18px; padding: 0 6px; }
+.blank-ph { aspect-ratio: 16 / 7; border: 1.5px solid var(--ink); display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: linear-gradient(160deg, var(--lav-soft), #d9f5cc); }
+.blank-ph span { font-family: var(--f-pixel-big); font-size: 15px; text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- 글 카드 ---------- */
+.posts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; }
+.post-card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; position: relative; }
+.post-card .overlay { position: absolute; right: 12px; bottom: 12px; z-index: 3; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; max-width: 82%; pointer-events: none; }
+.post-card .overlay .chrome { font-size: clamp(28px, 9vw, 40px); }
+.post-card .overlay .ktitle { font-size: clamp(17px, 5.2vw, 22px); }
+.post-card .info { display: flex; flex-direction: column; gap: 6px; }
+.post-card .info .lcd { font-size: clamp(26px, 8vw, 34px); }
+.post-card .excerpt { margin: 0; font-size: 12px; line-height: 1.65; color: #444; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.post-card .meta { display: flex; gap: 10px; }
+.post-card:hover .box { background: #f3f2ee; }
+.post-card .titleline { font-family: var(--f-pixel); font-weight: 700; font-size: 15px; }
+
+/* ---------- 글 보기 ---------- */
+.article-title { position: relative; z-index: 3; margin-top: -48px; padding: 0 8px; font-size: clamp(24px, 7.5vw, 32px); transform: rotate(-2deg); }
+.article-title.solo { margin-top: 0; }
+.article .lcd.date { font-size: clamp(26px, 8vw, 32px); }
+.article .body { font-size: 13px; line-height: 1.85; color: #2c2c2c; margin-top: 8px; }
+.photos-all { display: flex; flex-direction: column; gap: 10px; }
+.photos-all img { width: 100%; height: auto; display: block; border: 1.5px solid var(--ink); background: var(--lav-soft); }
+
+/* ---------- 댓글 · 방명록 ---------- */
+.list { list-style: none; margin: 0; padding: 0; }
+.chead { font-family: var(--f-lcd); font-size: 22px; line-height: 1; padding: 6px 12px; border-bottom: 1.5px solid var(--ink); background: var(--mint); display: flex; justify-content: space-between; align-items: center; }
+.citem { padding: 8px 12px; border-bottom: 1px dashed #9a9893; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
+.citem.mine { background: var(--lav-soft); padding-left: 24px; }
+.citem .who { font-weight: 700; }
+.citem.mine .who { color: var(--purple-deep); }
+.citem .row1 { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.citem .lcd { font-size: 15px; color: var(--muted); }
+
+.gb-list { display: flex; flex-direction: column; gap: 12px; }
+.gb-item { display: flex; flex-direction: column; gap: 6px; }
+.gb-item .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.gb-item .who { font-weight: 700; font-size: 13px; }
+.gb-item .lcd { font-size: 16px; white-space: nowrap; }
+.gb-item.hidden-item { opacity: .55; border-style: dashed; }
+.reply { padding: 6px 9px; background: var(--lav-soft); border: 1.2px solid var(--ink); font-size: 12px; }
+.reply b { color: var(--purple-deep); margin-right: 4px; }
+.locked { color: #3b5a32; font-size: 12px; margin: 0; }
+.tag { font-family: var(--f-label); font-size: 9px; border: 1px solid var(--ink); padding: 0 5px; margin-left: 4px; vertical-align: 1px; }
+
+/* ---------- 입력 ---------- */
+.inp { width: 100%; background: #f6f5f2; border: 1.5px solid var(--ink); padding: 7px 9px; font-size: 12px; font-family: var(--f-pixel); border-radius: 0; }
+.inp::placeholder { color: #8a8985; }
+textarea.inp { min-height: 84px; resize: vertical; line-height: 1.6; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; }
+.row > * { flex: 1 1 120px; min-width: 0; }
+.foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.check { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; }
+.check input { accent-color: var(--purple); width: 14px; height: 14px; margin: 0; }
+.count { font-family: var(--f-lcd); font-size: 15px; color: var(--muted); }
+.msg { font-size: 11px; margin: 0; min-height: 1.3em; }
+.msg.err { color: var(--danger); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.inline { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.inline .inp { flex: 1 1 120px; padding: 5px 8px; }
+.inline textarea.inp { flex-basis: 100%; min-height: 70px; }
+.acts { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.empty { text-align: center; padding: 26px 12px; margin: 0; font-size: 12px; }
+.more { align-self: center; }
+
+/* ---------- 글쓰기 ---------- */
+.pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
+.pic { position: relative; }
+.pic img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border: 1.5px solid var(--ink); max-width: 100%; }
+.pic .btn { position: absolute; top: 4px; right: 4px; padding: 0 6px; font-size: 10px; }
+label.file { position: relative; }
+label.file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+#pTitle { font-family: var(--f-pixel-big); font-size: 15px; }
+#pBody { min-height: 220px; }
+
+.banner { margin-bottom: 10px; }
+.adminbar { margin-top: 10px; }
+footer { display: flex; justify-content: space-between; gap: 10px; padding-top: 14px; font-family: var(--f-label); font-size: 10px; color: var(--muted); }
+footer a { text-decoration: none; }
+[hidden] { display: none !important; }
+
+@media (min-width: 520px) {
+  .stage { padding: 26px 28px 32px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .view { animation: fade .3s ease-out; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<div class="wrap">
+  <div class="win banner" id="demoBanner" hidden>
+    <div class="wbar"><span>PREVIEW.EXE</span><i><b></b><b></b><b></b></i></div>
+    <div class="win-body" style="flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap">
+      <span style="font-size:12px">미리보기 모드예요. 글은 이 화면에만 잠깐 저장돼요.</span>
+      <a class="btn sm p" href="#admin">관리자 화면 보기</a>
+    </div>
+  </div>
+
+  <header class="top">
+    <a class="logo" href="#posts" aria-label="홈"><img src="assets/logo.png" alt="" id="logoImg"></a>
+    <div class="top-info" id="topInfo"></div>
+  </header>
+
+  <nav class="win" aria-label="메뉴">
+    <div class="wbar"><span id="navTitle">MANGTONG.EXE</span><i><b></b><b></b><b></b></i></div>
+    <div class="win-body" style="flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px">
+      <span class="win-title">LET'S LOOK AROUND</span>
+      <div class="nav">
+        <a class="btn" href="#posts" data-tab="posts">ME</a>
+        <a class="btn" href="#guestbook" data-tab="guestbook">YOU</a>
+        <button type="button" class="btn sound" id="soundBtn" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="soundLabel">BGM OFF</span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="win adminbar" id="adminBar" hidden>
+    <div class="wbar"><span>ADMIN MODE</span><i><b></b><b></b><b></b></i></div>
+    <div class="win-body" style="flex-direction:row;justify-content:flex-end;gap:6px">
+      <a class="btn sm g" href="#write">새 글 쓰기</a>
+      <button type="button" class="btn sm" id="logoutBtn">로그아웃</button>
+    </div>
+  </div>
+
+  <audio id="bgm" src="assets/bgm.mp3" loop preload="none"></audio>
+
+  <main class="stage" id="stage">
+    <div class="view" id="view" aria-live="polite"></div>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> <span id="footName"></span></span>
+    <a href="#admin">ADMIN</a>
+  </footer>
+</div>
+
+<template id="tplHeartFill"><svg class="heart" aria-hidden="true" viewBox="0 0 160 152"><defs><radialGradient id="ghfill" cx=".5" cy=".42" r=".6"><stop offset="0" stop-color="#d9f7c4"/><stop offset=".28" stop-color="#b5ee9c"/><stop offset=".55" stop-color="#b394f4"/><stop offset="1" stop-color="#7f58e0"/></radialGradient>
+<filter id="gbfill" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5.5"/></filter><filter id="wbfill" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+<ellipse cx="80" cy="74" rx="78" ry="70" fill="#f6f5f1" filter="url(#wbfill)"/><ellipse cx="80" cy="74" rx="62" ry="56" fill="#f6f5f1" filter="url(#wbfill)"/>
+<path d="M50 90 C20 70 0 52 0 30 C0 13 13 0 29 0 C39 0 46 6 50 13 C54 6 61 0 71 0 C87 0 100 13 100 30 C100 52 80 70 50 90Z" transform="translate(30 30)" fill="url(#ghfill)" filter="url(#gbfill)"/><ellipse cx="80" cy="76" rx="76" ry="16" fill="none" stroke="#1d1630" stroke-width=".9" transform="rotate(-14 80 76)"/><path d="M150 43 C151.08 50.2 151.8 50.92 159 52 C151.8 53.08 151.08 53.8 150 61 C148.92 53.8 148.2 53.08 141 52 C148.2 50.92 148.92 50.2 150 43Z" fill="#1d1630"/><path d="M14 98 C14.72 102.8 15.2 103.28 20 104 C15.2 104.72 14.72 105.2 14 110 C13.28 105.2 12.8 104.72 8 104 C12.8 103.28 13.28 102.8 14 98Z" fill="#1d1630"/><path d="M140 26 C140.48 29.2 140.8 29.52 144 30 C140.8 30.48 140.48 30.8 140 34 C139.52 30.8 139.2 30.48 136 30 C139.2 29.52 139.52 29.2 140 26Z" fill="#1d1630"/><circle cx="8" cy="78" r="2.6" fill="#1d1630"/><circle cx="150" cy="96" r="1.8" fill="#1d1630"/></svg></template>
+<template id="tplHeartLine"><svg class="heart" aria-hidden="true" viewBox="0 0 160 152"><defs><filter id="gbline" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4.5"/></filter>
+<filter id="gsline" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2"/></filter><filter id="wbline" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+<ellipse cx="80" cy="74" rx="78" ry="70" fill="#f6f5f1" filter="url(#wbline)"/><ellipse cx="80" cy="74" rx="62" ry="56" fill="#f6f5f1" filter="url(#wbline)"/>
+<path d="M50 90 C20 70 0 52 0 30 C0 13 13 0 29 0 C39 0 46 6 50 13 C54 6 61 0 71 0 C87 0 100 13 100 30 C100 52 80 70 50 90Z" transform="translate(30 30)" fill="none" stroke="#8a62e6" stroke-width="20" filter="url(#gbline)"/>
+<path d="M50 90 C20 70 0 52 0 30 C0 13 13 0 29 0 C39 0 46 6 50 13 C54 6 61 0 71 0 C87 0 100 13 100 30 C100 52 80 70 50 90Z" transform="translate(30 30)" fill="none" stroke="#b5ee9c" stroke-width="6" filter="url(#gsline)"/><ellipse cx="80" cy="76" rx="76" ry="16" fill="none" stroke="#1d1630" stroke-width=".9" transform="rotate(-14 80 76)"/><path d="M150 43 C151.08 50.2 151.8 50.92 159 52 C151.8 53.08 151.08 53.8 150 61 C148.92 53.8 148.2 53.08 141 52 C148.2 50.92 148.92 50.2 150 43Z" fill="#1d1630"/><path d="M14 98 C14.72 102.8 15.2 103.28 20 104 C15.2 104.72 14.72 105.2 14 110 C13.28 105.2 12.8 104.72 8 104 C12.8 103.28 13.28 102.8 14 98Z" fill="#1d1630"/><path d="M140 26 C140.48 29.2 140.8 29.52 144 30 C140.8 30.48 140.48 30.8 140 34 C139.52 30.8 139.2 30.48 136 30 C139.2 29.52 139.52 29.2 140 26Z" fill="#1d1630"/><circle cx="8" cy="78" r="2.6" fill="#1d1630"/><circle cx="150" cy="96" r="1.8" fill="#1d1630"/></svg></template>
+
+<script>
+/* ============================================================
+   여기만 고치면 돼요
+   ============================================================ */
+const CONFIG = {
+  // Supabase 프로젝트 설정 > API 에서 복사해 붙여넣기 (비워두면 미리보기 모드)
+  SUPABASE_URL: "https://ftifrxiltbbppzbmthtn.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0aWZyeGlsdGJicHB6Ym10aHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzc0NDgsImV4cCI6MjEwODc1MzQ0OH0.EZ8QmR2JIvkFLc1wYLJIsJ-qgiS1LoBWxg90ZGhL5c8",
+
+  NAME: "망통",
+  HANDLE: "@MANGTONG",          // 오른쪽 위 작은 글씨
+  SITE: "MANGTONG.VERCEL.APP",  // 오른쪽 위 주소 표시
+};
+/* ============================================================ */
+
+const $ = (id) => document.getElementById(id);
+const PAGE = 20, MAX_PICS = 10, BUCKET = "post-images";
+const pad = (n) => String(n).padStart(2, "0");
+const lcdDate = (iso) => { const d = new Date(iso); return d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate()); };
+const lcdFull = (iso) => { const d = new Date(iso); return lcdDate(iso) + " | " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + "H"; };
+const lcdShort = (iso) => { const d = new Date(iso); return pad(d.getMonth() + 1) + "." + pad(d.getDate()) + " | " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + "H"; };
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function btn(label, cls, fn) { const b = el("button", "btn " + (cls || ""), label); b.type = "button"; if (fn) b.onclick = fn; return b; }
+function friendly(e) {
+  const m = (e && e.message) || "";
+  if (/[가-힣]/.test(m)) return m;
+  if (/fetch|network/i.test(m)) return "인터넷 연결을 확인하고 다시 시도해 주세요.";
+  if (/Invalid login/i.test(m)) return "이메일이나 비밀번호가 맞지 않아요.";
+  if (/exceeded|too large|size/i.test(m)) return "사진 용량이 너무 커요. 10MB 이하로 올려 주세요.";
+  return "문제가 생겼어요. 잠시 후 다시 시도해 주세요.";
+}
+function win(title, extraCls) {
+  const w = el("section", "win " + (extraCls || ""));
+  const bar = el("div", "wbar"); bar.append(el("span", null, title));
+  const i = el("i"); i.append(el("b"), el("b"), el("b")); bar.append(i);
+  const body = el("div", "win-body");
+  w.append(bar, body);
+  return { w, body };
+}
+function sticker(kind, style) {
+  const img = el("img", "sticker"); img.src = "assets/" + kind + ".png"; img.alt = ""; img.setAttribute("aria-hidden", "true");
+  Object.assign(img.style, style); return img;
+}
+function heart(kind) { const t = $(kind === "line" ? "tplHeartLine" : "tplHeartFill"); return t.content.firstElementChild.cloneNode(true); }
+function chrome(a, b) { const h = el("h2", "chrome"); h.append(a); if (b) h.append(el("i", null, b)); return h; }
+
+/* 사진을 1600px 이하 JPG 로 줄여서 올려요 */
+async function shrink(file) {
+  if (file.type === "image/gif") return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const s = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return (await new Promise((r) => c.toBlob(r, "image/jpeg", 0.85))) || file;
+  } catch { return file; }
+}
+
+/* ---------- 저장소: 미리보기(메모리) ---------- */
+function samplePhoto(a, b, glow) {
+  const c = document.createElement("canvas"); c.width = 800; c.height = 800;
+  const g = c.getContext("2d");
+  const lin = g.createLinearGradient(0, 0, 300, 800); lin.addColorStop(0, a); lin.addColorStop(1, b);
+  g.fillStyle = lin; g.fillRect(0, 0, 800, 800);
+  [[560, 260, 170, glow], [200, 560, 220, "rgba(255,255,255,.35)"], [150, 180, 40, "rgba(255,250,230,.9)"]].forEach(([x, y, r, col]) => {
+    const rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, col); rg.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = rg; g.fillRect(0, 0, 800, 800);
+  });
+  return c.toDataURL("image/jpeg", 0.8);
+}
+function demoApi() {
+  const day = 86400000, now = Date.now();
+  let admin = false, seq = 100;
+  const P = [samplePhoto("#5b4a8c", "#d9cdee", "rgba(243,236,255,.9)"), samplePhoto("#a58de6", "#d9d1f3", "rgba(200,243,180,.8)"),
+             samplePhoto("#8fdc78", "#e7e2f7", "rgba(242,255,233,.9)"), samplePhoto("#4d3a94", "#b9a2f0", "rgba(251,255,242,.85)")];
+  const posts = [
+    { id: 2, created_at: new Date(now - day * 0.3).toISOString(), updated_at: null, title: "예시) 오늘 다녀온 카페", body: "예시 글이에요.\n창가 자리에 앉아서 두 시간 내내 원고만 붙잡고 있었다. 커피는 식었지만 한 챕터 끝! 사진은 글 하나에 10장까지 올릴 수 있어요.", images: [P[0], P[3], P[2]] },
+    { id: 1, created_at: new Date(now - day * 3).toISOString(), updated_at: null, title: "예시) 홈페이지를 열었어요", body: "예시 글이에요. 사진 없이 글만 써도 이렇게 보여요.", images: [] },
+  ];
+  const comments = [
+    { id: 11, post_id: 2, created_at: new Date(now - day * 0.25).toISOString(), nickname: "예시) 지나가던독자", pw: "1234", content: "분위기 너무 좋아요! 어디예요?", is_author: false },
+    { id: 12, post_id: 2, created_at: new Date(now - day * 0.2).toISOString(), nickname: null, pw: null, content: "예시 답글이에요. 동네 작은 카페예요 :)", is_author: true },
+  ];
+  const gb = [
+    { id: 3, created_at: new Date(now - day * 0.4).toISOString(), nickname: "예시) 새벽독자", pw: "1234", content: "2부는 언제 시작하나요? 기다리고 있어요!", is_secret: false, reply: "다음 달 초에 돌아올게요 ♥", hidden: false },
+    { id: 2, created_at: new Date(now - day * 1.2).toISOString(), nickname: "예시) 비밀손님", pw: "1234", content: "비밀글 예시예요. 관리자 화면에서만 보여요.", is_secret: true, reply: null, hidden: false },
+    { id: 1, created_at: new Date(now - day * 3).toISOString(), nickname: "예시) 첫손님", pw: "1234", content: "홈페이지 개설 축하해요 ☆", is_secret: false, reply: null, hidden: false },
+  ];
+  const need = () => { if (!admin) throw new Error("관리자만 할 수 있어요."); };
+  const gbView = (r) => ({ ...r, pw: undefined, content: r.is_secret && !admin ? null : r.content, reply: r.is_secret && !admin ? null : r.reply });
+  return {
+    demo: true,
+    async listPosts(before) { return posts.filter(p => before == null || p.id < before).sort((a, b) => b.id - a.id).slice(0, PAGE).map(p => ({ ...p, comment_count: comments.filter(c => c.post_id === p.id).length })); },
+    async getPost(id) { return posts.find(p => p.id === id) || null; },
+    async savePost({ id, title, body, images }) {
+      need();
+      if (id) { Object.assign(posts.find(p => p.id === id), { title, body, images, updated_at: new Date().toISOString() }); return id; }
+      const nid = seq++; posts.push({ id: nid, created_at: new Date().toISOString(), updated_at: null, title, body, images }); return nid;
+    },
+    async deletePost(id) { need(); posts.splice(posts.findIndex(p => p.id === id), 1); for (let i = comments.length - 1; i >= 0; i--) if (comments[i].post_id === id) comments.splice(i, 1); },
+    async uploadImage(file) { need(); return URL.createObjectURL(await shrink(file)); },
+    async removeImages() {},
+    async listComments(postId) { return comments.filter(c => c.post_id === postId).sort((a, b) => a.id - b.id).map(c => ({ ...c, pw: undefined })); },
+    async addComment({ postId, nickname, password, content }) { comments.push({ id: seq++, post_id: postId, created_at: new Date().toISOString(), nickname, pw: password, content, is_author: false }); },
+    async deleteComment(id, pw) { const i = comments.findIndex(c => c.id === id && !c.is_author && c.pw === pw); if (i < 0) return false; comments.splice(i, 1); return true; },
+    async authorComment(postId, content) { need(); comments.push({ id: seq++, post_id: postId, created_at: new Date().toISOString(), nickname: null, pw: null, content, is_author: true }); },
+    async adminDeleteComment(id) { need(); comments.splice(comments.findIndex(c => c.id === id), 1); },
+    async gbList(before) { return gb.filter(r => (admin || !r.hidden) && (before == null || r.id < before)).sort((a, b) => b.id - a.id).slice(0, PAGE).map(gbView); },
+    async gbAdd({ nickname, password, content, secret }) { gb.push({ id: seq++, created_at: new Date().toISOString(), nickname, pw: password, content, is_secret: secret, reply: null, hidden: false }); },
+    async gbDelete(id, pw) { const i = gb.findIndex(r => r.id === id && r.pw === pw); if (i < 0) return false; gb.splice(i, 1); return true; },
+    async gbOpen(id, pw) { const r = gb.find(r => r.id === id && r.pw === pw); return r ? { content: r.content, reply: r.reply } : null; },
+    async gbReply(id, text) { need(); gb.find(r => r.id === id).reply = text.trim() || null; },
+    async gbHide(id, v) { need(); gb.find(r => r.id === id).hidden = v; },
+    async gbAdminDelete(id) { need(); gb.splice(gb.findIndex(r => r.id === id), 1); },
+    async login() { admin = true; return true; },
+    async logout() { admin = false; },
+    async isAdmin() { return admin; },
+  };
+}
+
+/* ---------- 저장소: Supabase ---------- */
+function loadScript(src) { return new Promise((ok, fail) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = fail; document.head.append(s); }); }
+async function supabaseApi() {
+  await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js");
+  const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  const ok = ({ data, error }) => { if (error) throw error; return data; };
+  const rpc = async (fn, args) => ok(await sb.rpc(fn, args));
+  const store = sb.storage.from(BUCKET);
+  const pathOf = (url) => { const i = url.indexOf("/" + BUCKET + "/"); return i < 0 ? null : decodeURIComponent(url.slice(i + BUCKET.length + 2)); };
+  return {
+    demo: false,
+    listPosts: (before) => rpc("p_list", { p_limit: PAGE, p_before: before ?? null }),
+    getPost: async (id) => ok(await sb.from("posts").select("*").eq("id", id).maybeSingle()),
+    async savePost({ id, title, body, images }) {
+      if (id) { ok(await sb.from("posts").update({ title, body, images, updated_at: new Date().toISOString() }).eq("id", id)); return id; }
+      return ok(await sb.from("posts").insert({ title, body, images }).select("id").single()).id;
+    },
+    async deletePost(id) { const p = await this.getPost(id); ok(await sb.from("posts").delete().eq("id", id)); if (p && p.images.length) await this.removeImages(p.images); },
+    async uploadImage(file) {
+      const blob = await shrink(file);
+      const ext = blob.type === "image/gif" ? "gif" : blob.type === "image/png" ? "png" : "jpg";
+      const path = new Date().toISOString().slice(0, 7) + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+      ok(await store.upload(path, blob, { contentType: blob.type || "image/jpeg", cacheControl: "31536000" }));
+      return store.getPublicUrl(path).data.publicUrl;
+    },
+    async removeImages(urls) { const paths = urls.map(pathOf).filter(Boolean); if (paths.length) await store.remove(paths); },
+    listComments: (postId) => rpc("c_list", { p_post_id: postId }),
+    addComment: ({ postId, nickname, password, content }) => rpc("c_add", { p_post_id: postId, p_nickname: nickname, p_password: password, p_content: content }),
+    deleteComment: (id, pw) => rpc("c_delete", { p_id: id, p_password: pw }),
+    authorComment: (postId, content) => rpc("c_author_add", { p_post_id: postId, p_content: content }),
+    adminDeleteComment: (id) => rpc("c_admin_delete", { p_id: id }),
+    gbList: (before) => rpc("gb_list", { p_limit: PAGE, p_before: before ?? null }),
+    gbAdd: ({ nickname, password, content, secret }) => rpc("gb_add", { p_nickname: nickname, p_password: password, p_content: content, p_secret: secret }),
+    gbDelete: (id, pw) => rpc("gb_delete", { p_id: id, p_password: pw }),
+    gbOpen: async (id, pw) => { const d = await rpc("gb_open", { p_id: id, p_password: pw }); return d && d.length ? d[0] : null; },
+    gbReply: (id, text) => rpc("gb_reply", { p_id: id, p_reply: text }),
+    gbHide: (id, v) => rpc("gb_set_hidden", { p_id: id, p_hidden: v }),
+    gbAdminDelete: (id) => rpc("gb_admin_delete", { p_id: id }),
+    async login(email, pw) { ok(await sb.auth.signInWithPassword({ email, password: pw })); return this.isAdmin(); },
+    async logout() { await sb.auth.signOut(); },
+    async isAdmin() { const { data } = await sb.auth.getSession(); if (!data.session) return false; return !!(await rpc("is_admin")); },
+  };
+}
+
+/* ---------- 소리: 배경음악 + 8비트 효과음 ---------- */
+const Sound = (() => {
+  let on = true, ctx = null, started = false;
+  try { on = localStorage.getItem("mt-sound") !== "off"; } catch {}
+  const bgm = () => $("bgm");
+  const ac = () => { if (!ctx) { const C = window.AudioContext || window.webkitAudioContext; if (C) ctx = new C(); } if (ctx && ctx.state === "suspended") ctx.resume(); return ctx; };
+  function tone(freqs, step = 0.055, type = "square", vol = 0.06) {
+    if (!on) return; const c = ac(); if (!c) return;
+    const t0 = c.currentTime + 0.005;
+    freqs.forEach((f, i) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t0 + i * step);
+      g.gain.setValueAtTime(0, t0 + i * step); g.gain.linearRampToValueAtTime(vol, t0 + i * step + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * step + step * 0.95);
+      o.connect(g).connect(c.destination); o.start(t0 + i * step); o.stop(t0 + (i + 1) * step);
+    });
+  }
+  const sfx = {
+    click: () => tone([880], 0.05),
+    nav: () => tone([660, 990], 0.05),
+    send: () => tone([988, 1319], 0.07),            // 코인 소리
+    open: () => tone([523, 659, 784], 0.045),
+    del: () => tone([392, 262], 0.08, "square", 0.05),
+    error: () => tone([196, 147], 0.1, "square", 0.05),
+  };
+  function ui() {
+    const b = $("soundBtn"); if (!b) return;
+    const playing = on && started && !bgm().paused;
+    b.setAttribute("aria-pressed", String(playing));
+    $("soundLabel").textContent = playing ? "NOW PLAYING" : on ? "BGM ▶" : "BGM OFF";
+  }
+  async function play() { try { await bgm().play(); started = true; } catch {} ui(); }
+  function set(v) {
+    on = v; try { localStorage.setItem("mt-sound", v ? "on" : "off"); } catch {}
+    if (v) play(); else { bgm().pause(); } ui();
+  }
+  function init() {
+    const a = bgm(); a.volume = 0.45;
+    a.addEventListener("play", ui); a.addEventListener("pause", ui);
+    $("soundBtn").addEventListener("click", (e) => { e.stopPropagation(); const playing = on && started && !a.paused; if (playing) set(false); else { set(true); sfx.open(); } });
+    // 처음 아무 곳이나 누르면 음악 시작 (꺼 두었으면 그대로)
+    const first = () => { if (on && !started) play(); };
+    document.addEventListener("pointerdown", first, { once: true });
+    document.addEventListener("keydown", first, { once: true });
+    // 버튼·링크 누를 때 효과음
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("a, button, label.file, input[type=checkbox]");
+      if (!t || t.id === "soundBtn") return;
+      if (t.matches("[data-tab], .logo, .post-card, .btn[href^='#']")) sfx.nav();
+      else if (t.matches("button[type=submit]")) sfx.send();
+      else if (t.matches(".danger")) sfx.del();
+      else sfx.click();
+    }, true);
+    ui();
+  }
+  return { init, sfx };
+})();
+
+let api, isAdmin = false;
+const view = () => $("view");
+
+/* 작은 입력창 (비밀번호 확인, 답변 쓰기 등) */
+function inlinePrompt(container, { placeholder, type = "password", multiline = false, value = "", okLabel, okClass = "", onOk }) {
+  container.textContent = "";
+  const box = el("div", "inline");
+  const input = el(multiline ? "textarea" : "input", "inp");
+  if (!multiline) input.type = type;
+  input.placeholder = placeholder; input.value = value;
+  const go = btn(okLabel, "sm " + okClass), cancel = btn("취소", "sm", () => { container.textContent = ""; });
+  const msg = el("p", "msg err");
+  const run = async () => {
+    go.disabled = true; msg.textContent = "";
+    try { const r = await onOk(input.value); if (r === false) { msg.textContent = "비밀번호가 맞지 않아요."; Sound.sfx.error(); go.disabled = false; } }
+    catch (e) { msg.textContent = friendly(e); go.disabled = false; }
+  };
+  go.onclick = run;
+  if (!multiline) input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); run(); } });
+  box.append(input, go, cancel); container.append(box, msg); input.focus();
+}
+function confirmInline(container, text, label, onYes) {
+  container.textContent = "";
+  const box = el("div", "inline");
+  const yes = btn(label, "sm danger", async () => { yes.disabled = true; try { await onYes(); } catch (e) { box.append(el("span", "msg err", friendly(e))); yes.disabled = false; } });
+  box.append(el("span", "msg", text), yes, btn("취소", "sm", () => { container.textContent = ""; }));
+  container.append(box);
+}
+
+/* 방문자 글쓰기 폼 (댓글·방명록 공용) */
+function visitorForm({ placeholder, withSecret, submitLabel, submitCls, onSubmit }) {
+  const f = el("form"); f.noValidate = true; f.style.cssText = "display:flex;flex-direction:column;gap:7px";
+  const row = el("div", "row");
+  const nick = el("input", "inp"); nick.type = "text"; nick.maxLength = 20; nick.placeholder = "닉네임"; nick.autocomplete = "nickname";
+  const pw = el("input", "inp"); pw.type = "password"; pw.maxLength = 40; pw.placeholder = "비밀번호 (4자 이상)"; pw.autocomplete = "new-password";
+  row.append(nick, pw);
+  const hp = el("input", "hp"); hp.type = "text"; hp.tabIndex = -1; hp.autocomplete = "off"; hp.setAttribute("aria-hidden", "true");
+  const ta = el("textarea", "inp"); ta.maxLength = 2000; ta.placeholder = placeholder;
+  const foot = el("div", "foot");
+  const secretLabel = el("label", "check"); const secret = el("input"); secret.type = "checkbox";
+  secretLabel.append(secret, "비밀글");
+  const count = el("span", "count", "0/2000");
+  ta.addEventListener("input", () => { count.textContent = ta.value.length + "/2000"; });
+  const sub = el("button", "btn " + (submitCls || "g"), submitLabel); sub.type = "submit";
+  const left = el("div", "acts"); left.append(withSecret ? secretLabel : count);
+  foot.append(left, sub);
+  const msg = el("p", "msg err"); msg.setAttribute("role", "status");
+  f.append(row, hp, ta, foot, msg);
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault(); msg.className = "msg err";
+    if (hp.value) return;
+    const n = nick.value.trim(), p = pw.value, c = ta.value.trim();
+    if (!n) { msg.textContent = "닉네임을 적어 주세요."; nick.focus(); return; }
+    if (p.length < 4) { msg.textContent = "비밀번호는 4자 이상으로 정해 주세요."; pw.focus(); return; }
+    if (!c) { msg.textContent = "내용을 적어 주세요."; ta.focus(); return; }
+    sub.disabled = true; msg.textContent = "";
+    try {
+      await onSubmit({ nickname: n, password: p, content: c, secret: secret.checked });
+      ta.value = ""; secret.checked = false; count.textContent = "0/2000";
+      msg.className = "msg"; msg.textContent = "남겼어요.";
+    } catch (err) { msg.textContent = friendly(err); }
+    sub.disabled = false;
+  });
+  return f;
+}
+
+function photoGrid(images) {
+  const n = Math.min(images.length, 3);
+  const g = el("div", "pgrid n" + n);
+  images.slice(0, 3).forEach((u, i) => {
+    const ph = el("div", "ph"); const img = el("img"); img.src = u; img.alt = ""; img.loading = "lazy"; ph.append(img);
+    if (i === 2 && images.length > 3) ph.append(el("span", "more-ph", "+" + (images.length - 3)));
+    g.append(ph);
+  });
+  return g;
+}
+
+/* ---------- 글 목록 ---------- */
+async function showPosts() {
+  const v = view(); v.textContent = "";
+  v.append(heart("fill"));
+  v.append(sticker("note", { left: "-34px", top: "70px", width: "84px", transform: "rotate(14deg)" }));
+  v.append(sticker("bolt", { right: "-22px", top: "-6px", width: "52px", transform: "rotate(12deg)" }));
+  const ul = el("ul", "posts"); v.append(ul);
+  const more = btn("이전 글 더 보기", "more"); more.hidden = true; v.append(more);
+  let oldest = null, first = true;
+  const load = async () => {
+    try {
+      const rows = await api.listPosts(oldest);
+      if (!rows.length && !ul.children.length) {
+        const b = el("li", "box empty", isAdmin ? "아직 글이 없어요. 위의 '새 글 쓰기'로 첫 글을 올려 보세요." : "아직 올라온 글이 없어요.");
+        ul.append(b);
+      }
+      rows.forEach((p) => {
+        const li = el("li"); const a = el("a", "post-card"); a.href = "#post-" + p.id;
+        const visual = el("div"); visual.style.position = "relative";
+        if (p.images && p.images.length) visual.append(photoGrid(p.images));
+        else { const bl = el("div", "blank-ph"); bl.append(el("span", null, p.body.replace(/\s+/g, " ").slice(0, 90) || p.title)); visual.append(bl); }
+        if (first) {
+          const ov = el("div", "overlay");
+          ov.append(chrome("New", "Post"), el("p", "ktitle", p.title));
+          visual.append(ov);
+        }
+        a.append(visual);
+        const info = el("div", "box pad info");
+        info.append(el("div", "lcd", lcdFull(p.created_at)));
+        if (!first) info.append(el("div", "titleline", p.title));
+        if (p.body) info.append(el("p", "excerpt", p.body.replace(/\s+/g, " ").slice(0, 140)));
+        const meta = el("div", "meta label muted");
+        meta.append(el("span", null, "PHOTO " + (p.images ? p.images.length : 0)), el("span", null, "COMMENT " + (p.comment_count || 0)));
+        info.append(meta);
+        a.append(info); li.append(a); ul.append(li);
+        first = false;
+      });
+      if (rows.length) oldest = rows[rows.length - 1].id;
+      more.hidden = rows.length < PAGE;
+    } catch (e) { ul.append(el("li", "box empty", "글을 불러오지 못했어요. " + friendly(e))); }
+  };
+  more.onclick = load;
+  await load();
+}
+
+/* ---------- 글 보기 + 댓글 ---------- */
+async function showPost(id) {
+  const v = view(); v.textContent = "";
+  const back = el("a", "btn sm", "← 글 목록"); back.href = "#posts"; back.style.alignSelf = "flex-start"; v.append(back);
+  let p;
+  try { p = await api.getPost(id); } catch (e) { v.append(el("p", "box empty", friendly(e))); return; }
+  if (!p) { v.append(el("p", "box empty", "지워졌거나 없는 글이에요.")); return; }
+
+  const art = el("article", "article view");
+  if (p.images && p.images.length) art.append(photoGrid(p.images));
+  art.append(el("h1", "ktitle article-title" + (p.images && p.images.length ? "" : " solo"), p.title));
+  const box = el("div", "box pad");
+  box.append(el("div", "lcd date", lcdFull(p.created_at)));
+  if (p.body) box.append(el("p", "body", p.body));
+  const meta = el("div", "label muted"); meta.style.marginTop = "8px";
+  meta.textContent = "PHOTO " + p.images.length + (p.updated_at ? " · EDITED" : "");
+  box.append(meta);
+  if (isAdmin) {
+    const acts = el("div", "acts"), slot = el("div"); acts.style.marginTop = "8px";
+    const edit = el("a", "btn sm", "수정"); edit.href = "#edit-" + p.id;
+    acts.append(edit, btn("삭제", "sm danger", () => confirmInline(slot, "글·사진·댓글이 모두 지워져요.", "삭제", async () => { await api.deletePost(p.id); location.hash = "posts"; })));
+    box.append(acts, slot);
+  }
+  art.append(box);
+  if (p.images && p.images.length > 3) {
+    const all = el("div", "photos-all");
+    p.images.slice(3).forEach(u => { const img = el("img"); img.src = u; img.alt = ""; img.loading = "lazy"; all.append(img); });
+    art.append(all);
+  }
+  v.append(art);
+  v.append(sticker("note", { right: "-30px", top: "34%", width: "78px", transform: "rotate(18deg)" }));
+  v.append(sticker("bolt", { left: "-26px", bottom: "120px", width: "50px", transform: "rotate(-14deg)" }));
+
+  const cbox = el("section", "box");
+  const head = el("div", "chead"); const htxt = el("span", null, "COMMENTS"); head.append(htxt);
+  const list = el("ul", "list");
+  cbox.append(head, list);
+  const formWrap = el("div"); formWrap.style.padding = "10px 12px";
+  cbox.append(formWrap);
+  v.append(cbox);
+
+  const renderComments = async () => {
+    list.textContent = "";
+    let rows = [];
+    try { rows = await api.listComments(p.id); } catch (e) { list.append(el("li", "empty", friendly(e))); return; }
+    htxt.textContent = "COMMENTS (" + rows.length + ")";
+    if (!rows.length) list.append(el("li", "empty muted", "첫 댓글을 남겨 주세요."));
+    rows.forEach((c) => {
+      const li = el("li", "citem" + (c.is_author ? " mine" : ""));
+      const r1 = el("div", "row1");
+      r1.append(el("span", "who", c.is_author ? "└ " + CONFIG.NAME : c.nickname), el("span", "lcd", lcdShort(c.created_at)));
+      li.append(r1, el("p", "body", c.content));
+      const acts = el("div", "acts"), slot = el("div");
+      if (isAdmin) acts.append(btn("삭제", "sm", () => confirmInline(slot, "이 댓글을 지울까요?", "삭제", async () => { await api.adminDeleteComment(c.id); await renderComments(); })));
+      else if (!c.is_author) acts.append(btn("내 댓글 지우기", "sm", () => inlinePrompt(slot, { placeholder: "댓글 비밀번호", okLabel: "삭제", okClass: "danger", onOk: async (pw) => { const r = await api.deleteComment(c.id, pw); if (!r) return false; await renderComments(); } })));
+      if (acts.children.length) li.append(acts, slot);
+      list.append(li);
+    });
+  };
+
+  if (isAdmin) {
+    const f = el("form"); f.noValidate = true; f.style.cssText = "display:flex;flex-direction:column;gap:7px";
+    const ta = el("textarea", "inp"); ta.maxLength = 2000; ta.placeholder = CONFIG.NAME + " 이름으로 댓글 달기";
+    const foot = el("div", "foot"); const msg = el("p", "msg err"); const sub = el("button", "btn p", "댓글 달기"); sub.type = "submit";
+    foot.append(msg, sub); f.append(ta, foot);
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault(); if (!ta.value.trim()) { msg.textContent = "내용을 적어 주세요."; return; }
+      sub.disabled = true; msg.textContent = "";
+      try { await api.authorComment(p.id, ta.value.trim()); ta.value = ""; await renderComments(); } catch (err) { msg.textContent = friendly(err); }
+      sub.disabled = false;
+    });
+    formWrap.append(f);
+  } else {
+    formWrap.append(visitorForm({ placeholder: "댓글을 남겨 주세요", withSecret: false, submitLabel: "남기기", submitCls: "p",
+      onSubmit: async (d) => { await api.addComment({ postId: p.id, ...d }); await renderComments(); } }));
+  }
+  await renderComments();
+}
+
+/* ---------- 글쓰기 / 수정 (관리자) ---------- */
+async function showEditor(id) {
+  const v = view(); v.textContent = "";
+  if (!isAdmin) {
+    const { w, body } = win("ACCESS_DENIED.EXE");
+    body.append(el("p", "body", "관리자로 로그인해야 글을 쓸 수 있어요."));
+    const a = el("a", "btn sm g", "로그인하러 가기"); a.href = "#admin"; a.style.alignSelf = "flex-start"; body.append(a);
+    v.append(w); return;
+  }
+  let post = { title: "", body: "", images: [] };
+  if (id) { post = await api.getPost(id); if (!post) { v.append(el("p", "box empty", "없는 글이에요.")); return; } }
+  const original = [...post.images];
+  let images = [...post.images];
+  let pending = [];
+
+  const back = el("a", "btn sm", id ? "← 글로 돌아가기" : "← 글 목록"); back.href = id ? "#post-" + id : "#posts"; back.style.alignSelf = "flex-start";
+  v.append(back, chrome(id ? "Edit" : "New", "Post"));
+  const { w, body } = win(id ? "EDIT_POST.EXE" : "NEW_POST.EXE");
+  const f = el("form"); f.noValidate = true; f.style.cssText = "display:flex;flex-direction:column;gap:8px";
+  const title = el("input", "inp"); title.type = "text"; title.id = "pTitle"; title.maxLength = 100; title.placeholder = "제목"; title.value = post.title;
+  const bodyIn = el("textarea", "inp"); bodyIn.id = "pBody"; bodyIn.maxLength = 20000; bodyIn.placeholder = "내용"; bodyIn.value = post.body;
+  const pics = el("div", "pics");
+  const fileLabel = el("label", "btn sm file"); const fileInput = el("input"); fileInput.type = "file"; fileInput.accept = "image/*"; fileInput.multiple = true; fileInput.id = "pFiles";
+  fileLabel.append(fileInput, "사진 추가");
+  const picNote = el("span", "count");
+  const picRow = el("div", "acts"); picRow.append(fileLabel, picNote);
+  const foot = el("div", "foot"); const msg = el("p", "msg err"); const sub = el("button", "btn g", id ? "수정 저장" : "올리기"); sub.type = "submit";
+  foot.append(msg, sub);
+  f.append(title, bodyIn, picRow, pics, foot);
+  body.append(f); v.append(w);
+
+  const drawPics = () => {
+    pics.textContent = "";
+    images.forEach((u, i) => { const d = el("div", "pic"); const img = el("img"); img.src = u; img.alt = ""; d.append(img, btn("빼기", "sm", () => { images.splice(i, 1); drawPics(); })); pics.append(d); });
+    pending.forEach((pp, i) => { const d = el("div", "pic"); const img = el("img"); img.src = pp.preview; img.alt = ""; d.append(img, btn("빼기", "sm", () => { URL.revokeObjectURL(pp.preview); pending.splice(i, 1); drawPics(); })); pics.append(d); });
+    picNote.textContent = (images.length + pending.length) + "/" + MAX_PICS;
+  };
+  fileInput.addEventListener("change", () => {
+    const room = MAX_PICS - images.length - pending.length;
+    const files = [...fileInput.files].filter(x => x.type.startsWith("image/"));
+    files.slice(0, room).forEach(file => pending.push({ file, preview: URL.createObjectURL(file) }));
+    msg.className = "msg err"; msg.textContent = files.length > room ? "사진은 글 하나에 " + MAX_PICS + "장까지 올릴 수 있어요." : "";
+    fileInput.value = ""; drawPics();
+  });
+  drawPics();
+
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault(); msg.className = "msg err";
+    if (!title.value.trim()) { msg.textContent = "제목을 적어 주세요."; title.focus(); return; }
+    sub.disabled = true;
+    try {
+      const uploaded = [];
+      for (let i = 0; i < pending.length; i++) { msg.className = "msg"; msg.textContent = "사진 올리는 중 (" + (i + 1) + "/" + pending.length + ")"; uploaded.push(await api.uploadImage(pending[i].file)); }
+      msg.textContent = "저장하는 중";
+      const finalImages = [...images, ...uploaded];
+      const nid = await api.savePost({ id, title: title.value.trim(), body: bodyIn.value.trim(), images: finalImages });
+      const removed = original.filter(u => !finalImages.includes(u));
+      if (removed.length) await api.removeImages(removed).catch(() => {});
+      pending.forEach(pp => URL.revokeObjectURL(pp.preview));
+      location.hash = "post-" + nid;
+    } catch (err) { msg.className = "msg err"; msg.textContent = friendly(err); sub.disabled = false; }
+  });
+  title.focus();
+}
+
+/* ---------- 방명록 ---------- */
+async function showGuestbook() {
+  const v = view(); v.textContent = "";
+  v.append(chrome("Dear", "You"));
+  v.append(sticker("bolt", { right: "-20px", top: "-12px", width: "54px", transform: "rotate(10deg)" }));
+  const list = el("div", "gb-list");
+  const more = btn("이전 글 더 보기", "more"); more.hidden = true;
+  let oldest = null;
+  const load = async () => {
+    try {
+      const rows = await api.gbList(oldest);
+      if (!rows.length && !list.children.length) list.append(el("p", "box empty", "아직 방명록이 비어 있어요. 첫 글을 남겨 주세요."));
+      rows.forEach(r => list.append(gbItem(r)));
+      if (rows.length) oldest = rows[rows.length - 1].id;
+      more.hidden = rows.length < PAGE;
+    } catch (e) { list.append(el("p", "box empty", "불러오지 못했어요. " + friendly(e))); }
+  };
+  const reload = async () => { oldest = null; list.textContent = ""; await load(); };
+  more.onclick = load;
+
+  function gbItem(r) {
+    const item = el("div", "box pad gb-item" + (r.content == null || (r.is_secret && isAdmin) ? " mint" : "") + (r.hidden ? " hidden-item" : ""));
+    const r1 = el("div", "row1");
+    const who = el("span", "who", r.nickname);
+    if (r.is_secret) who.append(el("span", "tag", "SECRET"));
+    if (r.hidden) who.append(el("span", "tag", "HIDDEN"));
+    r1.append(who, el("span", "lcd", lcdShort(r.created_at)));
+    const bodyWrap = el("div"), replyWrap = el("div");
+    const show = (content, reply) => {
+      bodyWrap.textContent = ""; bodyWrap.append(el("p", "body", content));
+      replyWrap.textContent = "";
+      if (reply) { const rp = el("div", "reply"); rp.append(el("b", null, CONFIG.NAME), document.createTextNode(reply)); replyWrap.append(rp); }
+    };
+    if (r.content == null) bodyWrap.append(el("p", "locked", "🔒 " + CONFIG.NAME + "에게만 보이는 비밀글이에요"));
+    else show(r.content, r.reply);
+    item.append(r1, bodyWrap, replyWrap);
+    const acts = el("div", "acts"), slot = el("div");
+    if (r.content == null) acts.append(btn("비밀번호로 열기", "sm", () => inlinePrompt(slot, { placeholder: "글 비밀번호", okLabel: "열기",
+      onOk: async (pw) => { const d = await api.gbOpen(r.id, pw); if (!d) return false; show(d.content, d.reply); slot.textContent = ""; } })));
+    if (isAdmin) {
+      acts.append(
+        btn(r.reply ? "답변 고치기" : "답변하기", "sm p", () => inlinePrompt(slot, { placeholder: "답변을 적어 주세요. 비우고 저장하면 답변이 지워져요.", multiline: true, value: r.reply || "", okLabel: "저장", okClass: "p",
+          onOk: async (text) => { await api.gbReply(r.id, text); await reload(); } })),
+        btn(r.hidden ? "다시 보이기" : "숨기기", "sm", async () => { await api.gbHide(r.id, !r.hidden); await reload(); }),
+        btn("삭제", "sm danger", () => confirmInline(slot, "지울까요? 되돌릴 수 없어요.", "삭제", async () => { await api.gbAdminDelete(r.id); await reload(); })));
+    } else {
+      acts.append(btn("내 글 지우기", "sm", () => inlinePrompt(slot, { placeholder: "글 비밀번호", okLabel: "삭제", okClass: "danger",
+        onOk: async (pw) => { const ok = await api.gbDelete(r.id, pw); if (!ok) return false; await reload(); } })));
+    }
+    item.append(acts, slot);
+    return item;
+  }
+
+  if (!isAdmin) {
+    const { w, body } = win("GUESTBOOK.EXE");
+    body.append(el("span", "win-title", "LEAVE A NOTE"));
+    body.append(visitorForm({ placeholder: CONFIG.NAME + "에게 하고 싶은 말이나 질문을 적어 주세요", withSecret: true, submitLabel: "CHECK INBOX ✉", submitCls: "g",
+      onSubmit: async (d) => { await api.gbAdd(d); await reload(); } }));
+    v.append(w);
+  }
+  v.append(list, more);
+  const h = heart("line"); h.style.marginTop = "4px"; v.append(h);
+  v.append(sticker("note", { right: "-30px", bottom: "10px", width: "88px", transform: "rotate(22deg)" }));
+  v.append(sticker("note", { left: "-34px", top: "300px", width: "64px", transform: "rotate(-10deg)" }));
+  await load();
+}
+
+/* ---------- 관리자 로그인 ---------- */
+function showAdmin() {
+  const v = view(); v.textContent = "";
+  const { w, body } = win("ADMIN_LOGIN.EXE");
+  if (isAdmin) {
+    body.append(el("span", "win-title", "WELCOME BACK"), el("p", "body", "관리자로 로그인돼 있어요. 글 탭에서 새 글을 쓰고, 방명록에서 답변을 달 수 있어요."));
+    const a = el("a", "btn sm g", "새 글 쓰기"); a.href = "#write"; a.style.alignSelf = "flex-start"; body.append(a);
+    v.append(w); return;
+  }
+  const email = el("input", "inp"); email.type = "email"; email.id = "adminEmail"; email.placeholder = "이메일"; email.autocomplete = "username";
+  const pw = el("input", "inp"); pw.type = "password"; pw.id = "adminPw"; pw.placeholder = "비밀번호"; pw.autocomplete = "current-password";
+  if (api.demo) { email.value = "preview@example.com"; pw.value = "preview"; }
+  const row = el("div", "row"); row.append(email, pw);
+  const msg = el("p", "msg err");
+  const go = btn("로그인", "g", async () => {
+    go.disabled = true; msg.textContent = "";
+    try {
+      const ok = await api.login(email.value.trim(), pw.value);
+      if (!ok) { msg.textContent = "로그인은 됐지만 관리자 이메일로 등록돼 있지 않아요."; await api.logout(); go.disabled = false; return; }
+      await refreshAdmin(); location.hash = "posts";
+    } catch (e) { msg.textContent = friendly(e); go.disabled = false; }
+  });
+  pw.addEventListener("keydown", (e) => { if (e.key === "Enter") go.click(); });
+  const foot = el("div", "foot"); foot.append(msg, go);
+  body.append(el("span", "win-title", "SIGN ON"), row, foot);
+  v.append(w);
+}
+
+async function refreshAdmin() {
+  isAdmin = await api.isAdmin().catch(() => false);
+  $("adminBar").hidden = !isAdmin;
+}
+
+/* ---------- 화면 전환 ---------- */
+async function route() {
+  const h = location.hash.slice(1) || "posts";
+  const tab = h === "guestbook" ? "guestbook" : (h === "admin" ? "" : "posts");
+  document.title = CONFIG.NAME + (tab === "guestbook" ? " · YOU" : tab === "posts" ? " · ME" : "");
+  document.querySelectorAll(".nav .btn").forEach(a => { const on = a.dataset.tab === tab; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  if (h === "guestbook") return showGuestbook();
+  if (h === "admin") return showAdmin();
+  if (h === "write") return showEditor(null);
+  let m;
+  if ((m = h.match(/^post-(\d+)$/))) return showPost(+m[1]);
+  if ((m = h.match(/^edit-(\d+)$/))) return showEditor(+m[1]);
+  return showPosts();
+}
+
+(async function start() {
+  $("logoImg").alt = CONFIG.NAME;
+  $("footName").textContent = CONFIG.NAME;
+  $("year").textContent = new Date().getFullYear();
+  $("topInfo").append(el("b", null, CONFIG.HANDLE), el("br"), el("span", null, CONFIG.SITE));
+  document.title = CONFIG.NAME;
+  const configured = CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY;
+  try { api = configured ? await supabaseApi() : demoApi(); } catch { api = demoApi(); }
+  $("demoBanner").hidden = !api.demo;
+  $("logoutBtn").onclick = async () => { await api.logout(); await refreshAdmin(); route(); };
+  Sound.init();
+  await refreshAdmin();
+  window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+  await route();
+})();
+</script>
+
+</html>
