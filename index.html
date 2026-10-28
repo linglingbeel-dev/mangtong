@@ -212,6 +212,29 @@ footer { display: flex; justify-content: space-between; gap: 10px; padding-top: 
 footer a { text-decoration: none; }
 [hidden] { display: none !important; }
 
+/* ---------- 대문 ---------- */
+.door { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: #ecebe6 url("assets/bg.jpg") center / cover no-repeat;
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  transition: opacity .45s ease, transform .45s ease; }
+.door.leaving { opacity: 0; transform: scale(1.03); pointer-events: none; }
+.door-logo { width: min(68vw, 300px); filter: drop-shadow(0 4px 0 rgba(34,34,34,.12)); }
+.door .win { width: min(100%, 360px); }
+.door .wbar { background: linear-gradient(90deg, #5a3fb0, #8f6fdc 55%, #b5ee9c); border-bottom-color: var(--ink); }
+.door .wbar span { color: #fff; }
+.door-text { font-size: 12px; }
+.pbar { height: 24px; border: 1.5px solid var(--ink); background: #f6f5f2; padding: 2px; display: flex; gap: 2px; }
+.pbar i { flex: 1; background: transparent; }
+.pbar i.on { background: var(--purple-deep); }
+.pinfo { display: flex; justify-content: space-between; font-family: var(--f-lcd); font-size: 17px; line-height: 1; }
+.door-acts { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.door-enter { font-family: var(--f-label); font-size: 13px; letter-spacing: .08em; padding: 8px 18px; }
+.door-enter:disabled { opacity: .45; }
+.door-quiet { background: none; border: 0; padding: 4px 0; font-family: var(--f-pixel); font-size: 11px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.door .sticker { position: absolute; }
+body.door-open { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .door { transition: none; } }
+
 @media (min-width: 520px) {
   .stage { padding: 26px 28px 32px; }
 }
@@ -220,6 +243,24 @@ footer a { text-decoration: none; }
   @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 }
 </style>
+
+<div class="door" id="door" hidden role="dialog" aria-modal="true" aria-label="입장">
+  <img class="door-logo" src="assets/logo.png" alt="망통">
+  <section class="win">
+    <div class="wbar"><span>SIGN ON</span><i><b></b><b></b><b></b></i></div>
+    <div class="win-body">
+      <span class="door-text" id="doorText">망통의 홈에 접속하는 중...</span>
+      <div class="pbar" id="pbar" aria-hidden="true"></div>
+      <div class="pinfo"><span id="doorStatus">CONNECTING...</span><span id="doorPct">0%</span></div>
+      <div class="door-acts">
+        <button type="button" class="door-quiet" id="doorQuiet">음악 없이 들어가기</button>
+        <button type="button" class="btn g door-enter" id="doorEnter" disabled>ENTER ♪</button>
+      </div>
+    </div>
+  </section>
+  <img class="sticker" src="assets/note.png" alt="" aria-hidden="true" style="left:6%;top:16%;width:78px;transform:rotate(-12deg)">
+  <img class="sticker" src="assets/bolt.png" alt="" aria-hidden="true" style="right:8%;bottom:14%;width:56px;transform:rotate(14deg)">
+</div>
 
 <div class="wrap">
   <div class="win banner" id="demoBanner" hidden>
@@ -500,7 +541,7 @@ const Sound = (() => {
     }, true);
     ui();
   }
-  return { init, sfx };
+  return { init, sfx, start: () => set(true), mute: () => set(false), isOn: () => on };
 })();
 
 let api, isAdmin = false;
@@ -864,6 +905,40 @@ function showAdmin() {
   v.append(w);
 }
 
+/* ---------- 대문: 처음 들어올 때 한 번만 ---------- */
+function openDoor() {
+  const h = location.hash.slice(1);
+  let seen = false;
+  try { seen = sessionStorage.getItem("mt-entered") === "1"; } catch {}
+  if (seen || (h && h !== "posts")) return;          // 특정 글·방명록 링크로 왔으면 건너뛰기
+  const door = $("door"), bar = $("pbar"), pct = $("doorPct"), enter = $("doorEnter");
+  for (let i = 0; i < 20; i++) bar.append(el("i"));
+  door.hidden = false; document.body.classList.add("door-open");
+  const cells = [...bar.children];
+  const finish = () => {
+    cells.forEach(c => c.classList.add("on")); pct.textContent = "99%";
+    $("doorStatus").textContent = "READY"; $("doorText").textContent = "접속 완료! 들어오세요";
+    enter.disabled = false; enter.focus();
+  };
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) finish();
+  else {
+    let n = 0;
+    const tick = setInterval(() => {
+      n++; cells.slice(0, n).forEach(c => c.classList.add("on"));
+      pct.textContent = Math.min(99, Math.round(n / 20 * 99)) + "%";
+      if (n >= 20) { clearInterval(tick); finish(); }
+    }, 70);
+  }
+  const leave = (withSound) => {
+    try { sessionStorage.setItem("mt-entered", "1"); } catch {}
+    if (withSound) { Sound.start(); Sound.sfx.send(); } else Sound.mute();
+    door.classList.add("leaving"); document.body.classList.remove("door-open");
+    setTimeout(() => { door.hidden = true; }, 460);
+  };
+  enter.onclick = () => leave(true);
+  $("doorQuiet").onclick = () => leave(false);
+}
+
 async function refreshAdmin() {
   isAdmin = await api.isAdmin().catch(() => false);
   $("adminBar").hidden = !isAdmin;
@@ -898,6 +973,7 @@ async function route() {
   $("demoBanner").hidden = !api.demo;
   $("logoutBtn").onclick = async () => { await api.logout(); await refreshAdmin(); route(); };
   Sound.init();
+  openDoor();
   await refreshAdmin();
   window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
   await route();
