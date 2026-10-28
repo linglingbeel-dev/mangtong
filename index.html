@@ -159,7 +159,11 @@ img { max-width: 100%; }
 .list { list-style: none; margin: 0; padding: 0; }
 .chead { font-family: var(--f-lcd); font-size: 22px; line-height: 1; padding: 6px 12px; border-bottom: 1.5px solid var(--ink); background: var(--mint); display: flex; justify-content: space-between; align-items: center; }
 .citem { padding: 8px 12px; border-bottom: 1px dashed #9a9893; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
-.citem.mine { background: var(--lav-soft); padding-left: 24px; }
+.citem.mine { background: var(--lav-soft); }
+.citem.sub { padding-left: 30px; position: relative; }
+.citem.sub::before { content: "↳"; position: absolute; left: 12px; top: 8px; font-family: var(--f-lcd); font-size: 16px; color: var(--muted); }
+.citem.mine .who::after { content: "WRITER"; font-family: var(--f-label); font-size: 9px; border: 1px solid var(--purple-deep); color: var(--purple-deep); padding: 0 4px; margin-left: 6px; vertical-align: 1px; font-weight: 400; }
+.reply-form { margin-top: 6px; padding: 8px; border: 1.2px dashed var(--ink); background: #f3f2ee; }
 .citem .who { font-weight: 700; }
 .citem.mine .who { color: var(--purple-deep); }
 .citem .row1 { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
@@ -403,7 +407,7 @@ function demoApi() {
   ];
   const comments = [
     { id: 11, post_id: 2, created_at: new Date(now - day * 0.25).toISOString(), nickname: "예시) 지나가던독자", pw: "1234", content: "분위기 너무 좋아요! 어디예요?", is_author: false },
-    { id: 12, post_id: 2, created_at: new Date(now - day * 0.2).toISOString(), nickname: null, pw: null, content: "예시 답글이에요. 동네 작은 카페예요 :)", is_author: true },
+    { id: 12, post_id: 2, parent_id: 11, created_at: new Date(now - day * 0.2).toISOString(), nickname: null, pw: null, content: "예시 답글이에요. 동네 작은 카페예요 :)", is_author: true },
   ];
   const gb = [
     { id: 3, created_at: new Date(now - day * 0.4).toISOString(), nickname: "예시) 새벽독자", pw: "1234", content: "2부는 언제 시작하나요? 기다리고 있어요!", is_secret: false, reply: "다음 달 초에 돌아올게요 ♥", hidden: false },
@@ -411,6 +415,8 @@ function demoApi() {
     { id: 1, created_at: new Date(now - day * 3).toISOString(), nickname: "예시) 첫손님", pw: "1234", content: "홈페이지 개설 축하해요 ☆", is_secret: false, reply: null, hidden: false },
   ];
   const need = () => { if (!admin) throw new Error("관리자만 할 수 있어요."); };
+  const rootOf = (pid) => { if (pid == null) return null; const c = comments.find(x => x.id === pid); return c ? (c.parent_id ?? c.id) : null; };
+  const dropComment = (id) => { for (let i = comments.length - 1; i >= 0; i--) if (comments[i].id === id || comments[i].parent_id === id) comments.splice(i, 1); };
   const gbView = (r) => ({ ...r, pw: undefined, content: r.is_secret && !admin ? null : r.content, reply: r.is_secret && !admin ? null : r.reply });
   return {
     demo: true,
@@ -425,10 +431,10 @@ function demoApi() {
     async uploadImage(file) { need(); return URL.createObjectURL(await shrink(file)); },
     async removeImages() {},
     async listComments(postId) { return comments.filter(c => c.post_id === postId).sort((a, b) => a.id - b.id).map(c => ({ ...c, pw: undefined })); },
-    async addComment({ postId, nickname, password, content }) { comments.push({ id: seq++, post_id: postId, created_at: new Date().toISOString(), nickname, pw: password, content, is_author: false }); },
-    async deleteComment(id, pw) { const i = comments.findIndex(c => c.id === id && !c.is_author && c.pw === pw); if (i < 0) return false; comments.splice(i, 1); return true; },
-    async authorComment(postId, content) { need(); comments.push({ id: seq++, post_id: postId, created_at: new Date().toISOString(), nickname: null, pw: null, content, is_author: true }); },
-    async adminDeleteComment(id) { need(); comments.splice(comments.findIndex(c => c.id === id), 1); },
+    async addComment({ postId, nickname, password, content, parentId }) { comments.push({ id: seq++, post_id: postId, parent_id: rootOf(parentId), created_at: new Date().toISOString(), nickname, pw: password, content, is_author: false }); },
+    async deleteComment(id, pw) { const i = comments.findIndex(c => c.id === id && !c.is_author && c.pw === pw); if (i < 0) return false; dropComment(id); return true; },
+    async authorComment(postId, content, parentId) { need(); comments.push({ id: seq++, post_id: postId, parent_id: rootOf(parentId), created_at: new Date().toISOString(), nickname: null, pw: null, content, is_author: true }); },
+    async adminDeleteComment(id) { need(); dropComment(id); },
     async gbList(before) { return gb.filter(r => (admin || !r.hidden) && (before == null || r.id < before)).sort((a, b) => b.id - a.id).slice(0, PAGE).map(gbView); },
     async gbAdd({ nickname, password, content, secret }) { gb.push({ id: seq++, created_at: new Date().toISOString(), nickname, pw: password, content, is_secret: secret, reply: null, hidden: false }); },
     async gbDelete(id, pw) { const i = gb.findIndex(r => r.id === id && r.pw === pw); if (i < 0) return false; gb.splice(i, 1); return true; },
@@ -469,9 +475,9 @@ async function supabaseApi() {
     },
     async removeImages(urls) { const paths = urls.map(pathOf).filter(Boolean); if (paths.length) await store.remove(paths); },
     listComments: (postId) => rpc("c_list", { p_post_id: postId }),
-    addComment: ({ postId, nickname, password, content }) => rpc("c_add", { p_post_id: postId, p_nickname: nickname, p_password: password, p_content: content }),
+    addComment: ({ postId, nickname, password, content, parentId }) => rpc("c_add", Object.assign({ p_post_id: postId, p_nickname: nickname, p_password: password, p_content: content }, parentId != null ? { p_parent_id: parentId } : {})),
     deleteComment: (id, pw) => rpc("c_delete", { p_id: id, p_password: pw }),
-    authorComment: (postId, content) => rpc("c_author_add", { p_post_id: postId, p_content: content }),
+    authorComment: (postId, content, parentId) => rpc("c_author_add", Object.assign({ p_post_id: postId, p_content: content }, parentId != null ? { p_parent_id: parentId } : {})),
     adminDeleteComment: (id) => rpc("c_admin_delete", { p_id: id }),
     gbList: (before) => rpc("gb_list", { p_limit: PAGE, p_before: before ?? null }),
     gbAdd: ({ nickname, password, content, secret }) => rpc("gb_add", { p_nickname: nickname, p_password: password, p_content: content, p_secret: secret }),
@@ -707,41 +713,61 @@ async function showPost(id) {
   cbox.append(formWrap);
   v.append(cbox);
 
+  // 댓글 쓰는 칸 (맨 아래 + 답글용)
+  const commentForm = (parentId, onDone) => {
+    if (isAdmin) {
+      const f = el("form"); f.noValidate = true; f.style.cssText = "display:flex;flex-direction:column;gap:7px";
+      const ta = el("textarea", "inp"); ta.maxLength = 2000; ta.placeholder = parentId ? CONFIG.NAME + " 이름으로 답글 달기" : CONFIG.NAME + " 이름으로 댓글 달기";
+      if (parentId) ta.style.minHeight = "60px";
+      const foot = el("div", "foot"); const msg = el("p", "msg err"); const sub = el("button", "btn p sm", parentId ? "답글 달기" : "댓글 달기"); sub.type = "submit";
+      const right = el("div", "acts"); if (onDone && parentId) right.append(btn("취소", "sm", onDone)); right.append(sub);
+      foot.append(msg, right); f.append(ta, foot);
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault(); if (!ta.value.trim()) { msg.textContent = "내용을 적어 주세요."; return; }
+        sub.disabled = true; msg.textContent = "";
+        try { await api.authorComment(p.id, ta.value.trim(), parentId); ta.value = ""; await renderComments(); } catch (err) { msg.textContent = friendly(err); sub.disabled = false; }
+        sub.disabled = false;
+      });
+      setTimeout(() => parentId && ta.focus(), 0);
+      return f;
+    }
+    const f = visitorForm({ placeholder: parentId ? "답글을 남겨 주세요" : "댓글을 남겨 주세요", withSecret: false, submitLabel: parentId ? "답글 달기" : "남기기", submitCls: "p",
+      onSubmit: async (d) => { await api.addComment({ postId: p.id, parentId, ...d }); await renderComments(); } });
+    if (parentId && onDone) { const sub = f.querySelector("button[type=submit]"); sub.classList.add("sm"); const grp = el("div", "acts"); sub.replaceWith(grp); grp.append(btn("취소", "sm", onDone), sub); }
+    return f;
+  };
+
   const renderComments = async () => {
     list.textContent = "";
     let rows = [];
     try { rows = await api.listComments(p.id); } catch (e) { list.append(el("li", "empty", friendly(e))); return; }
     htxt.textContent = "COMMENTS (" + rows.length + ")";
     if (!rows.length) list.append(el("li", "empty muted", "첫 댓글을 남겨 주세요."));
-    rows.forEach((c) => {
-      const li = el("li", "citem" + (c.is_author ? " mine" : ""));
+    const tops = rows.filter(c => c.parent_id == null || !rows.some(x => x.id === c.parent_id));
+    const kids = (id) => rows.filter(c => c.parent_id === id);
+    const item = (c, isSub, rootId) => {
+      const li = el("li", "citem" + (c.is_author ? " mine" : "") + (isSub ? " sub" : ""));
       const r1 = el("div", "row1");
-      r1.append(el("span", "who", c.is_author ? "└ " + CONFIG.NAME : c.nickname), el("span", "lcd", lcdShort(c.created_at)));
+      r1.append(el("span", "who", c.is_author ? CONFIG.NAME : c.nickname), el("span", "lcd", lcdShort(c.created_at)));
       li.append(r1, el("p", "body", c.content));
       const acts = el("div", "acts"), slot = el("div");
-      if (isAdmin) acts.append(btn("삭제", "sm", () => confirmInline(slot, "이 댓글을 지울까요?", "삭제", async () => { await api.adminDeleteComment(c.id); await renderComments(); })));
+      acts.append(btn("답글", "sm p", () => {
+        if (slot.querySelector(".reply-form")) { slot.textContent = ""; return; }
+        slot.textContent = "";
+        const wrap = el("div", "reply-form"); wrap.append(commentForm(rootId, () => { slot.textContent = ""; })); slot.append(wrap);
+      }));
+      if (isAdmin) acts.append(btn("삭제", "sm", () => confirmInline(slot, isSub ? "이 답글을 지울까요?" : "이 댓글과 답글을 지울까요?", "삭제", async () => { await api.adminDeleteComment(c.id); await renderComments(); })));
       else if (!c.is_author) acts.append(btn("내 댓글 지우기", "sm", () => inlinePrompt(slot, { placeholder: "댓글 비밀번호", okLabel: "삭제", okClass: "danger", onOk: async (pw) => { const r = await api.deleteComment(c.id, pw); if (!r) return false; await renderComments(); } })));
-      if (acts.children.length) li.append(acts, slot);
-      list.append(li);
+      li.append(acts, slot);
+      return li;
+    };
+    tops.forEach((c) => {
+      list.append(item(c, false, c.id));
+      kids(c.id).forEach(k => list.append(item(k, true, c.id)));
     });
   };
 
-  if (isAdmin) {
-    const f = el("form"); f.noValidate = true; f.style.cssText = "display:flex;flex-direction:column;gap:7px";
-    const ta = el("textarea", "inp"); ta.maxLength = 2000; ta.placeholder = CONFIG.NAME + " 이름으로 댓글 달기";
-    const foot = el("div", "foot"); const msg = el("p", "msg err"); const sub = el("button", "btn p", "댓글 달기"); sub.type = "submit";
-    foot.append(msg, sub); f.append(ta, foot);
-    f.addEventListener("submit", async (e) => {
-      e.preventDefault(); if (!ta.value.trim()) { msg.textContent = "내용을 적어 주세요."; return; }
-      sub.disabled = true; msg.textContent = "";
-      try { await api.authorComment(p.id, ta.value.trim()); ta.value = ""; await renderComments(); } catch (err) { msg.textContent = friendly(err); }
-      sub.disabled = false;
-    });
-    formWrap.append(f);
-  } else {
-    formWrap.append(visitorForm({ placeholder: "댓글을 남겨 주세요", withSecret: false, submitLabel: "남기기", submitCls: "p",
-      onSubmit: async (d) => { await api.addComment({ postId: p.id, ...d }); await renderComments(); } }));
-  }
+  formWrap.append(commentForm(null));
   await renderComments();
 }
 
