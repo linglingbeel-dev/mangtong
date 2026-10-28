@@ -200,6 +200,23 @@ textarea.inp { min-height: 84px; resize: vertical; line-height: 1.6; }
 .empty { text-align: center; padding: 26px 12px; margin: 0; font-size: 12px; }
 .more { align-self: center; }
 
+/* ---------- 사진 크게 보기 ---------- */
+.article .pgrid img, .photos-all img { cursor: zoom-in; }
+.viewer { position: fixed; inset: 0; z-index: 95; background: rgba(20, 16, 34, .92); display: flex; flex-direction: column;
+  padding: max(10px, env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px)); }
+.viewer .win { display: flex; flex-direction: column; flex: 1; min-height: 0; max-width: 1100px; width: 100%; margin: 0 auto; background: #1d1a2b; border-color: #e8e7e3; box-shadow: none; }
+.viewer .wbar { background: linear-gradient(90deg, #5a3fb0, #8f6fdc 55%, #b5ee9c); border-bottom-color: #e8e7e3; }
+.viewer .wbar span { color: #fff; }
+.viewer .vclose { margin-left: auto; width: 22px; height: 18px; padding: 0; font-family: var(--f-label); font-size: 11px; line-height: 1; }
+.vstage { position: relative; flex: 1; min-height: 0; overflow: auto; display: flex; align-items: center; justify-content: center; touch-action: pan-x pan-y pinch-zoom; }
+.vstage img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; cursor: zoom-in; user-select: none; -webkit-user-drag: none; }
+.vstage.actual { display: block; text-align: center; }
+.vstage.actual img { max-width: none; max-height: none; margin: 0 auto; cursor: zoom-out; }
+.vfoot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1.5px solid #e8e7e3; color: #e8e7e3; }
+.vfoot .lcd { font-size: 22px; }
+.vfoot .hint { font-size: 11px; color: #b9b5c8; }
+body.viewer-open { overflow: hidden; }
+
 /* ---------- 글쓰기 ---------- */
 .pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
 .pic { position: relative; }
@@ -702,6 +719,10 @@ async function showPost(id) {
     art.append(all);
   }
   v.append(art);
+  art.querySelectorAll(".pgrid img, .photos-all img").forEach((img, i) => {
+    img.alt = p.title + " 사진 " + (i + 1);
+    img.addEventListener("click", () => openViewer(p.images, i, p.title));
+  });
   v.append(sticker("note", { right: "-30px", top: "34%", width: "78px", transform: "rotate(18deg)" }));
   v.append(sticker("bolt", { left: "-26px", bottom: "120px", width: "50px", transform: "rotate(-14deg)" }));
 
@@ -769,6 +790,46 @@ async function showPost(id) {
 
   formWrap.append(commentForm(null));
   await renderComments();
+}
+
+/* ---------- 사진 크게 보기 ---------- */
+function openViewer(images, start, title) {
+  let i = start;
+  const ov = el("div", "viewer"); ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", "사진 크게 보기");
+  const w = el("section", "win");
+  const bar = el("div", "wbar"); const name = el("span"); const close = btn("X", "vclose"); close.setAttribute("aria-label", "닫기");
+  bar.append(name, close);
+  const stage = el("div", "vstage"); const img = el("img"); stage.append(img);
+  const foot = el("div", "vfoot");
+  const prev = btn("◀ PREV", "sm"), next = btn("NEXT ▶", "sm"), count = el("span", "lcd");
+  const hint = el("span", "hint", "사진을 누르면 실제 크기로 봐요");
+  const mid = el("div"); mid.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:2px"; mid.append(count, hint);
+  foot.append(prev, mid, next);
+  w.append(bar, stage, foot); ov.append(w);
+  const show = () => {
+    stage.classList.remove("actual"); stage.scrollTo(0, 0);
+    img.src = images[i]; img.alt = title + " 사진 " + (i + 1);
+    name.textContent = "IMG_" + String(i + 1).padStart(3, "0") + ".JPG";
+    count.textContent = (i + 1) + " / " + images.length;
+    prev.disabled = i === 0; next.disabled = i === images.length - 1;
+    prev.style.visibility = next.style.visibility = images.length > 1 ? "visible" : "hidden";
+  };
+  const go = (d) => { const n = i + d; if (n < 0 || n >= images.length) return; i = n; Sound.sfx.click(); show(); };
+  const shut = () => { ov.remove(); document.body.classList.remove("viewer-open"); document.removeEventListener("keydown", onKey); };
+  const onKey = (e) => { if (e.key === "Escape") shut(); else if (e.key === "ArrowLeft") go(-1); else if (e.key === "ArrowRight") go(1); };
+  prev.onclick = () => go(-1); next.onclick = () => go(1); close.onclick = shut;
+  ov.addEventListener("click", (e) => { if (e.target === ov) shut(); });
+  img.addEventListener("click", () => { stage.classList.toggle("actual"); });
+  // 휴대폰: 옆으로 밀어서 넘기기
+  let sx = null, sy = 0;
+  stage.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !stage.classList.contains("actual")) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } else sx = null; }, { passive: true });
+  stage.addEventListener("touchend", (e) => {
+    if (sx == null) return; const t = e.changedTouches[0]; const dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+  });
+  document.addEventListener("keydown", onKey);
+  document.body.append(ov); document.body.classList.add("viewer-open");
+  show(); close.focus();
 }
 
 /* ---------- 글쓰기 / 수정 (관리자) ---------- */
