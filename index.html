@@ -257,6 +257,42 @@ label.file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
 .banner { margin-bottom: 10px; }
 .adminbar { margin-top: 10px; }
+/* ---------- 밤 모드 (밤 10시 ~ 아침 7시 자동, 버튼으로 바꾸기) ---------- */
+:root[data-mode="night"] { --paper:#0f1028; --box:#1c1d3d; --win:#22234a; --winbar:#2e2f5e; --ink:#e9e6ff; --muted:#9d9bc4; --lav-soft:#2f2860; --purple-deep:#c9b6ff; --danger:#ff9b9b; color-scheme: dark; }
+:root[data-mode="night"], :root[data-mode="night"] body { background:#0f1028; color:#e9e6ff; }
+:root[data-mode="night"] body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: radial-gradient(1.4px 1.4px at 12% 18%, #fff 50%, transparent 52%), radial-gradient(1px 1px at 72% 9%, #fff 50%, transparent 52%), radial-gradient(1.8px 1.8px at 88% 34%, #ffe9b8 50%, transparent 52%), radial-gradient(1px 1px at 33% 41%, #fff 50%, transparent 52%), radial-gradient(1.4px 1.4px at 54% 66%, #cfe0ff 50%, transparent 52%), radial-gradient(1px 1px at 8% 77%, #fff 50%, transparent 52%), radial-gradient(1.6px 1.6px at 80% 86%, #fff 50%, transparent 52%), radial-gradient(1px 1px at 44% 93%, #fff 50%, transparent 52%);
+  background-size: 260px 300px; }
+:root[data-mode="night"] body::after { opacity:.25; mix-blend-mode: screen; }
+:root[data-mode="night"] .wrap { z-index:1; }
+:root[data-mode="night"] .stage { background:#141633 url("assets/bg-night.jpg") center top / 100% auto repeat-y; }
+:root[data-mode="night"] .win { box-shadow:4px 4px 0 rgba(0,0,0,.4); }
+:root[data-mode="night"] .wbar { background:linear-gradient(90deg,#3a2a7e,#5a3fb0 60%,#2f6b55); }
+:root[data-mode="night"] .wbar span { color:#fff; }
+:root[data-mode="night"] .wbar i b { background:#d9d6f5; border-color:#0f1028; }
+:root[data-mode="night"] .btn { background:#2e2f5e; color:#e9e6ff; border-color:#e9e6ff; box-shadow:inset -2px -2px 0 #15163a; }
+:root[data-mode="night"] .btn.on, :root[data-mode="night"] .btn.g { background:#b5ee9c; color:#1b2a16; box-shadow:inset -2px -2px 0 #6fae58; }
+:root[data-mode="night"] .btn.p, :root[data-mode="night"] .btn.sound[aria-pressed="true"] { background:#8f6fdc; color:#fff; box-shadow:inset -2px -2px 0 #5a3fb0; }
+:root[data-mode="night"] .btn.sound .eq i { background:#e9e6ff; }
+:root[data-mode="night"] .btn.danger { color:#ff9b9b; border-color:#ff9b9b; }
+:root[data-mode="night"] .inp { background:#141633; color:#e9e6ff; border-color:#e9e6ff; }
+:root[data-mode="night"] .inp::placeholder { color:#8c8ab3; }
+:root[data-mode="night"] .excerpt, :root[data-mode="night"] .article .body, :root[data-mode="night"] .body { color:#dedcf5; }
+:root[data-mode="night"] .blank-ph { background:linear-gradient(160deg,#2f2860,#1f5a52); }
+:root[data-mode="night"] .lcd { color:#b5ee9c; text-shadow:0 0 6px rgba(181,238,156,.55); }
+:root[data-mode="night"] .citem .lcd, :root[data-mode="night"] .gb-item .lcd { color:#b5ee9c; }
+:root[data-mode="night"] .chead { background:#2f6b55; color:#e9fff0; }
+:root[data-mode="night"] .box.mint { background:#1f3f35; }
+:root[data-mode="night"] .locked { color:#b5ee9c; }
+:root[data-mode="night"] .post-card:hover .box { background:#25264c; }
+:root[data-mode="night"] .logo img, :root[data-mode="night"] .door-logo { filter: drop-shadow(0 0 14px rgba(143,200,255,.45)); }
+:root[data-mode="night"] .heart ellipse[fill="#f6f5f1"] { opacity:.16; }
+:root[data-mode="night"] .door { background:#141633 url("assets/bg-night.jpg") center / cover no-repeat; }
+:root[data-mode="night"] .pbar { background:#141633; }
+:root[data-mode="night"] .door-quiet { color:#c9c6ea; }
+.moon { display:none; font-family:var(--f-label); font-size:9px; letter-spacing:.06em; border:1.5px solid var(--ink); padding:2px 6px; margin-bottom:4px; }
+:root[data-mode="night"] .moon { display:inline-block; }
+.btn.mode { font-family: var(--f-label); font-size: 10px; letter-spacing: .04em; }
 footer { display: flex; justify-content: space-between; gap: 10px; padding-top: 14px; font-family: var(--f-label); font-size: 10px; color: var(--muted); }
 footer a { text-decoration: none; }
 [hidden] { display: none !important; }
@@ -322,7 +358,7 @@ body.door-open { overflow: hidden; }
 
   <header class="top">
     <a class="logo" href="#posts" aria-label="홈"><img src="assets/logo.png" alt="" id="logoImg"></a>
-    <div class="top-info" id="topInfo"></div>
+    <div class="top-info"><span class="moon" id="moonTag"></span><div id="topInfo"></div></div>
   </header>
 
   <nav class="win" aria-label="메뉴">
@@ -333,6 +369,7 @@ body.door-open { overflow: hidden; }
         <a class="btn" href="#posts" data-tab="posts">ME</a>
         <a class="btn" href="#guestbook" data-tab="guestbook">YOU</a>
         <button type="button" class="btn sound" id="soundBtn" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="soundLabel">BGM OFF</span></button>
+        <button type="button" class="btn mode" id="modeBtn" title="눌러서 낮·밤 바꾸기">☀ DAY</button>
       </div>
     </div>
   </nav>
@@ -1041,6 +1078,28 @@ function showAdmin() {
   v.append(w);
 }
 
+/* ---------- 낮·밤 모드 ---------- */
+const DayNight = (() => {
+  const autoMode = () => { const h = new Date().getHours(); return (h >= 22 || h < 7) ? "night" : "day"; };
+  const pick = () => { try { const v = sessionStorage.getItem("mt-mode"); if (v === "day" || v === "night") return v; } catch {} return autoMode(); };
+  const apply = (m) => {
+    document.documentElement.dataset.mode = m;
+    const b = $("modeBtn"); if (b) { b.textContent = m === "night" ? "☾ NIGHT" : "☀ DAY"; b.setAttribute("aria-pressed", String(m === "night")); }
+    const d = new Date(); $("moonTag").textContent = "☾ NIGHT MODE " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = m === "night" ? "#0f1028" : "#e8e7e3";
+  };
+  function init() {
+    apply(pick());
+    $("modeBtn").addEventListener("click", () => {
+      const next = document.documentElement.dataset.mode === "night" ? "day" : "night";
+      try { sessionStorage.setItem("mt-mode", next); } catch {}
+      apply(next); Sound.sfx.open();
+    });
+    setInterval(() => apply(pick()), 60000);   // 1분마다 시간 확인 (밤 10시가 되면 자동으로 바뀜)
+  }
+  return { init };
+})();
+
 /* ---------- 대문: 처음 들어올 때 한 번만 ---------- */
 function openDoor() {
   const h = location.hash.slice(1);
@@ -1109,6 +1168,7 @@ async function route() {
   $("demoBanner").hidden = !api.demo;
   $("logoutBtn").onclick = async () => { await api.logout(); await refreshAdmin(); route(); };
   Sound.init();
+  DayNight.init();
   openDoor();
   await refreshAdmin();
   window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
