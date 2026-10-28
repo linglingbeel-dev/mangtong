@@ -2,9 +2,26 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="description" content="SINCE 2026 · 망통의 홈에 놀러 오세요 ♪">
+<meta name="theme-color" content="#e8e7e3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="망통">
+<meta property="og:title" content="망통">
+<meta property="og:description" content="SINCE 2026 · 망통의 홈에 놀러 오세요 ♪">
+<meta property="og:url" content="https://linglingbeel-dev.github.io/mangtong/">
+<meta property="og:image" content="https://linglingbeel-dev.github.io/mangtong/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="망통 로고와 보라·연두 물결 배경">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="망통">
+<meta name="twitter:description" content="SINCE 2026 · 망통의 홈에 놀러 오세요 ♪">
+<meta name="twitter:image" content="https://linglingbeel-dev.github.io/mangtong/assets/og.jpg">
 <title>망통</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=VT323&family=Silkscreen&display=swap">
@@ -199,6 +216,17 @@ textarea.inp { min-height: 84px; resize: vertical; line-height: 1.6; }
 .acts { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
 .empty { text-align: center; padding: 26px 12px; margin: 0; font-size: 12px; }
 .more { align-self: center; }
+
+/* ---------- 반짝이 커서 ---------- */
+.spark { position: fixed; left: 0; top: 0; z-index: 120; pointer-events: none; filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 3px rgba(90,63,176,.6));
+  animation: spark var(--t, .75s) ease-out forwards; }
+.spark i { display: block; width: var(--s, 12px); height: var(--s, 12px); background: var(--c, #8f6fdc);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); }
+@keyframes spark {
+  0% { transform: translate(var(--x), var(--y)) scale(.2) rotate(0deg); opacity: 0; }
+  20% { transform: translate(var(--x), var(--y)) scale(1) rotate(20deg); opacity: 1; }
+  100% { transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) + var(--dy))) scale(.15) rotate(110deg); opacity: 0; }
+}
 
 /* ---------- 사진 크게 보기 ---------- */
 .article .pgrid img, .photos-all img { cursor: zoom-in; }
@@ -791,6 +819,27 @@ async function showPost(id) {
   formWrap.append(commentForm(null));
   await renderComments();
 }
+
+/* ---------- 반짝이 커서 (마우스·손가락 지나간 자리에 별) ---------- */
+(function sparkles() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#8f6fdc", "#b5ee9c", "#ffffff", "#b9a2f0", "#ffc2e4", "#8fc8ff"];
+  let live = 0, last = 0;
+  const spawn = (x, y, burst) => {
+    if (live > 40) return;
+    const sp = document.createElement("span"); sp.className = "spark"; sp.setAttribute("aria-hidden", "true");
+    const r = (a, b) => a + Math.random() * (b - a);
+    const size = burst ? r(14, 24) : r(10, 18);
+    sp.style.cssText = `--x:${x - size / 2 + r(-6, 6)}px;--y:${y - size / 2 + r(-6, 6)}px;--dx:${burst ? r(-40, 40) : r(-12, 12)}px;--dy:${burst ? r(-40, 30) : r(8, 26)}px;--s:${size}px;--c:${colors[Math.floor(Math.random() * colors.length)]};--t:${r(.55, .9)}s`;
+    sp.append(document.createElement("i"));
+    live++; document.body.append(sp);
+    sp.addEventListener("animationend", () => { sp.remove(); live--; }, { once: true });
+  };
+  const trail = (x, y) => { const now = performance.now(); if (now - last < 32) return; last = now; spawn(x, y, false); };
+  document.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") trail(e.clientX, e.clientY); }, { passive: true });
+  document.addEventListener("touchmove", (e) => { const t = e.touches[0]; if (t) trail(t.clientX, t.clientY); }, { passive: true });
+  document.addEventListener("pointerdown", (e) => { for (let k = 0; k < 6; k++) spawn(e.clientX, e.clientY, true); }, { passive: true });
+})();
 
 /* ---------- 사진 크게 보기 ---------- */
 function openViewer(images, start, title) {
