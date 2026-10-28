@@ -249,9 +249,12 @@ footer a { text-decoration: none; }
 
   <div class="win adminbar" id="adminBar" hidden>
     <div class="wbar"><span>ADMIN MODE</span><i><b></b><b></b><b></b></i></div>
-    <div class="win-body" style="flex-direction:row;justify-content:flex-end;gap:6px">
-      <a class="btn sm g" href="#write">새 글 쓰기</a>
+    <div class="win-body" style="flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px 10px">
+      <span class="msg" id="adminHint" style="min-height:0"></span>
+      <span class="acts">
+      <a class="btn sm g" href="#write" id="adminWrite">ME에 새 글 쓰기</a>
       <button type="button" class="btn sm" id="logoutBtn">로그아웃</button>
+      </span>
     </div>
   </div>
 
@@ -288,7 +291,7 @@ const CONFIG = {
 
   NAME: "망통",
   HANDLE: "@MANGTONG",          // 오른쪽 위 작은 글씨
-  SITE: "MANGTONG.VERCEL.APP",  // 오른쪽 위 주소 표시
+  SITE: "LINGLINGBEEL-DEV.GITHUB.IO/MANGTONG",  // 오른쪽 위 주소 표시
 };
 /* ============================================================ */
 
@@ -829,7 +832,7 @@ async function showGuestbook() {
   v.append(list, more);
   const h = heart("line"); h.style.marginTop = "4px"; v.append(h);
   v.append(sticker("note", { right: "-30px", bottom: "10px", width: "88px", transform: "rotate(22deg)" }));
-  v.append(sticker("note", { left: "-34px", top: "300px", width: "64px", transform: "rotate(-10deg)" }));
+  v.append(sticker("note", { left: "-30px", bottom: "40px", width: "64px", transform: "rotate(-10deg)" }));
   await load();
 }
 
@@ -871,6 +874,9 @@ async function route() {
   const h = location.hash.slice(1) || "posts";
   const tab = h === "guestbook" ? "guestbook" : (h === "admin" ? "" : "posts");
   document.title = CONFIG.NAME + (tab === "guestbook" ? " · YOU" : tab === "posts" ? " · ME" : "");
+  const inYou = h === "guestbook";
+  $("adminWrite").hidden = inYou || h === "write" || /^edit-/.test(h);
+  $("adminHint").textContent = inYou ? "방명록마다 있는 '답변하기'로 답할 수 있어요" : (h === "write" || /^edit-/.test(h)) ? "ME에 올릴 글을 쓰는 중이에요" : "";
   document.querySelectorAll(".nav .btn").forEach(a => { const on = a.dataset.tab === tab; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   if (h === "guestbook") return showGuestbook();
   if (h === "admin") return showAdmin();
