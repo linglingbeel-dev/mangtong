@@ -155,7 +155,7 @@ img { max-width: 100%; }
 .bgl { position: fixed; inset: 0; z-index: -3; pointer-events: none; opacity: 0; mix-blend-mode: screen;
   background: url("assets/xmas-lights.jpg") center / cover no-repeat; transition: opacity .8s; }
 html[data-mode="night"] { background: #070302; }
-html[data-mode="night"] .bgp { filter: brightness(.26) saturate(1.25) contrast(1.1); }
+html[data-mode="night"] .bgp { filter: brightness(.4) saturate(1.25) contrast(1.08); }
 html[data-mode="night"] .bgl { opacity: 1; animation: glow 4s ease-in-out infinite; }
 @keyframes glow { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
 html[data-mode="night"] .veil { background: radial-gradient(130% 90% at 50% 40%, transparent 35%, rgba(5,2,0,.7) 100%); }
@@ -560,6 +560,7 @@ function btn(label, cls, fn) { const b = el("button", "btn " + (cls || ""), labe
 function friendly(e) {
   const m = (e && e.message) || "";
   if (/[가-힣]/.test(m)) return m;
+  if (/Could not find the function|schema cache|PGRST20|does not exist/i.test(m)) return "아직 준비 중인 기능이에요. 조금 뒤에 다시 와 주세요.";
   if (/fetch|network/i.test(m)) return "인터넷 연결을 확인하고 다시 시도해 주세요.";
   if (/Invalid login/i.test(m)) return "이메일이나 비밀번호가 맞지 않아요.";
   if (/exceeded|too large|size/i.test(m)) return "사진 용량이 너무 커요. 10MB 이하로 올려 주세요.";
@@ -1306,10 +1307,10 @@ async function showGuestbook() {
 
   if (!isAdmin) {
     const { w, body } = win("Leave a letter", "", "mail", ["파일(F)", "편집(E)", "도움말(H)"]);
-    const intro = el("div", "dlg"); intro.append(el("span", "ico32 ico-info"), el("p", null, CONFIG.NAME + "에게 하고 싶은 말이나 질문을 남겨 주세요.\n비밀글은 " + CONFIG.NAME + "만 볼 수 있어요."));
+    const intro = el("div", "dlg"); intro.append(el("span", "ico32 ico-info"), el("p", null, CONFIG.NAME + "에게 하고 싶은 말이나 질문을 남겨 주세요.\n모든 방명록은 비밀글이라 " + CONFIG.NAME + "만 볼 수 있어요 🔒"));
     body.append(intro);
-    body.append(visitorForm({ placeholder: "내용을 적어 주세요", withSecret: true, submitLabel: "보내기 ✉", submitCls: "g",
-      onSubmit: async (d) => { await api.gbAdd(d); await reload(); } }));
+    body.append(visitorForm({ placeholder: "내용을 적어 주세요", withSecret: false, submitLabel: "비밀글로 보내기 🔒", submitCls: "g",
+      onSubmit: async (d) => { await api.gbAdd({ ...d, secret: true }); await reload(); } }));
     v.append(w);
   }
   v.append(list, more);
